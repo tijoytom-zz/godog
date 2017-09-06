@@ -44,31 +44,81 @@ func (n *node) isLeaf() bool {
 	return len(n.children) == 0
 }
 
-func (t* BTree) insert_internal(node *node,e *entry) bool {
+func (t* BTree) insert_internal(node *node,e *entry) (bool,*node) {
   found,index := t.findkey(node,e.key)
   if node.isLeaf() {
 	if found {
 		node.entries[index] = e
-		return false 
+		return false,node 
 	} else {
 	
 	  node.entries = append(node.entries,nil)
 	  copy(node.entries[index+1:],node.entries[index:])
 	  
 	  node.entries[index] = e
-      return true
+      return true,node
 	}
   }
   return t.insert_internal(node.children[index],e)
 }
 
-func (t* BTree) Add(key interface{},value interface{}) bool {
+func (t *BTree) need_split(node *node) bool {
+	return len(node.entries) == t.order
+}
+
+func setparent(nodes []*node , parent *node) {
+	for _,n := range nodes {
+		n.parent = parent
+	}
+}
+
+func (t *BTree) splitnonroot(n *node) {
+ 
+	if !t.need_split(n) { 
+		return 
+	}
+	p := n.parent
+	middle := len(n.entries) / 2 // left leaning
+	left  := &node{entries:append( []*entry(nil),n.entries[:middle]...),parent:p}
+	right := &node{entries:append( []*entry(nil),n.entries[middle+1:]...),parent:p}
+	
+	if !n.isLeaf() {
+		left.children = append([]*node(nil), n.children[:middle+1]...)
+		right.children = append([]*node(nil), n.children[middle+1:]...)
+		setparent(left.children,left)
+		setparent(right.children,right)
+	}
+	
+	_, index := t.findkey(p,n.entries[middle].key)
+	p.entries = append(p.entries,nil)
+	copy(p.entries[index+1:] ,p.entries[index:])
+	p.entries[index] = n.entries[middle]
+
+	p.children[index] = left
+	p.children = append(p.children,nil)
+	copy(p.children[index+2:],p.children[index+1:])
+	p.children[index+1] = right	
+
+	// recursive split parent 
+	t.splitnonroot(p)
+}
+
+func(t *BTree) splitnode(node *node) {
+	if (node == t.root) {
+
+	} else {
+		t.splitnonroot(node)
+	}
+}
+
+func (t *BTree) Add(key interface{},value interface{}) bool {
    e :=  &entry{key:key,value:value}
    if t.root == nil {
 	   t.root = &node{entries:[]*entry{e},children:[]* node{}}
 	   return true
    }
-   inserted := t.insert_internal(t.root,e)
+   inserted , n := t.insert_internal(t.root,e)
+   t.splitnode(n)
    return inserted
 }
 
