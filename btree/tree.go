@@ -1,4 +1,5 @@
 package btree
+import ("fmt")
 type Comparator func(a,b interface{}) int
 
 type entry struct {
@@ -88,7 +89,7 @@ func (t *BTree) splitnonroot(n *node) {
 		setparent(left.children,left)
 		setparent(right.children,right)
 	}
-	
+
 	_, index := t.findkey(p,n.entries[middle].key)
 	p.entries = append(p.entries,nil)
 	copy(p.entries[index+1:] ,p.entries[index:])
@@ -103,9 +104,34 @@ func (t *BTree) splitnonroot(n *node) {
 	t.splitnonroot(p)
 }
 
+func(t *BTree) splitroot() {
+	current_root := t.root
+	if !t.need_split(current_root) {
+		return 
+	}	
+	middle := len(current_root.entries)/2
+
+	left  := &node{entries:append( []*entry(nil),current_root.entries[:middle]...),parent:current_root}
+	right := &node{entries:append( []*entry(nil),current_root.entries[middle+1:]...),parent:current_root}
+	
+
+	if len(current_root.children) > 0 {
+		left.children = append([]*node(nil), current_root.children[:middle+1]...)
+		right.children = append([]*node(nil), current_root.children[middle+1:]...)
+		setparent(left.children,left)
+		setparent(right.children,right)	
+	}
+	
+	new_root := &node{ entries:[]*entry{current_root.entries[middle] }, children:[]*node{left,right}}
+	fmt.Println(new_root.entries[0].value)
+	//fmt.Println(new_root.children[0].entries[0].value)
+	//fmt.Println(new_root.children[1].entries[0].value)
+	t.root = new_root	
+}
+
 func(t *BTree) splitnode(node *node) {
 	if (node == t.root) {
-
+		t.splitroot()
 	} else {
 		t.splitnonroot(node)
 	}
@@ -127,9 +153,11 @@ func (t *BTree) Add(key interface{},value interface{}) bool {
 func (t* BTree) ToArray() []interface{} {
    var arr []interface{}
    var q []*node
+   q = append(q,t.root)
 
-   node := t.root
-   for node != nil || len(q) > 0  {
+   for len(q) > 0  {
+	node := q[0]
+	q = q[1:]
 	if node.isLeaf() {
 		for i:=0;i<len(node.entries);i++ {
 			arr = append(arr,node.entries[i].value)
@@ -139,10 +167,6 @@ func (t* BTree) ToArray() []interface{} {
 			q  = append(q,node.children[i])
 		}
 	}
-	if len(q) == 0 {
-		break
-	}
-	node , q = q[0],q[1:]
    }
    return arr
 }

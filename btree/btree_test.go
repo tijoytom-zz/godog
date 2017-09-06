@@ -1,6 +1,8 @@
 package btree 
 
-import ("testing")
+import ("testing"
+        //"fmt"
+        )
 
 func stringcomparer(a,b interface{}) int {
   s1 := a.(string)
@@ -28,7 +30,32 @@ func stringcomparer(a,b interface{}) int {
   return 0
 }
 
+func intcomparer(a,b interface{}) int {
+  s1 := a.(int)
+  s2 := b.(int)
+  
+  if s1 < s2 {
+    return -1
+  }
+  if s1>s2 {
+    return 1
+  }
+  return 0  
+}
 
+
+func TestBTreeSplit(t *testing.T) {
+  tree := New(intcomparer,3)
+  tree.Add(10,10)	
+	tree.Add(200,200)	
+  tree.Add(100,100)
+  
+  arr := tree.ToArray()
+  if arr[0] != 100 {   
+    
+    t.Error("root is not 100")
+  }
+}
 func TestBTree(t *testing.T) {
 	tree := New(stringcomparer,3)
 	if tree == nil {
