@@ -1,5 +1,4 @@
 package btree
-import ("fmt")
 type Comparator func(a,b interface{}) int
 
 type entry struct {
@@ -123,9 +122,6 @@ func(t *BTree) splitroot() {
 	}
 	
 	new_root := &node{ entries:[]*entry{current_root.entries[middle] }, children:[]*node{left,right}}
-	fmt.Println(new_root.entries[0].value)
-	//fmt.Println(new_root.children[0].entries[0].value)
-	//fmt.Println(new_root.children[1].entries[0].value)
 	t.root = new_root	
 }
 
@@ -148,13 +144,12 @@ func (t *BTree) Add(key interface{},value interface{}) bool {
    return inserted
 }
 
-
-
+// buggy
 func (t* BTree) ToArray() []interface{} {
    var arr []interface{}
    var q []*node
    q = append(q,t.root)
-
+   
    for len(q) > 0  {
 	node := q[0]
 	q = q[1:]
@@ -170,4 +165,3 @@ func (t* BTree) ToArray() []interface{} {
    }
    return arr
 }
-

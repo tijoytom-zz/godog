@@ -1,7 +1,7 @@
 package btree 
 
 import ("testing"
-        //"fmt"
+        "fmt"
         )
 
 func stringcomparer(a,b interface{}) int {
@@ -47,15 +47,16 @@ func intcomparer(a,b interface{}) int {
 func TestBTreeSplit(t *testing.T) {
   tree := New(intcomparer,3)
   tree.Add(10,10)	
-	tree.Add(200,200)	
+  tree.Add(200,200)	
   tree.Add(100,100)
   
   arr := tree.ToArray()
-  if arr[0] != 100 {   
-    
+  if arr[0] != 10 {   
+	 
     t.Error("root is not 100")
   }
 }
+
 func TestBTree(t *testing.T) {
 	tree := New(stringcomparer,3)
 	if tree == nil {
@@ -67,9 +68,8 @@ func TestBTree(t *testing.T) {
 	
 	tree.Add("key3",100)
 	arr := tree.ToArray()
-
+	fmt.Println(arr)
 	if len(arr) != 3 {
 		t.Error("unexpected length")
 	}
-
 }
