@@ -110,6 +110,39 @@ func (t *BinTree) add(n *Node,key interface{},value interface{}) *Node {
 	return n
 }
 
+func (t *BinTree) DeleteMin(x *Node) *Node {
+	if x == nil {
+		return nil
+	}
+	if x.left == nil {
+	  return x.right
+	}
+	x.left = DeleteMin(x.left)
+	return x
+}
+
+
+func (t *BinTree) delete(x *Node,key interface{}) (bool,*Node) {
+	cmp := t.compare(key,x.key)
+	if cmp < 0 {
+		return delete(x.left,key)
+	} else if cmp > 0 {
+		return delete(x.right,key)
+	} else {
+		if x.right == nil {
+			return true,x.left
+		}
+		temp := x 
+		x.right = t.DeleteMin(x.right)
+		x.left = temp.left
+		return true ,x
+	}
+}
+func(t *BinTree) Remove(key interface{}) bool {
+	removed , x := t.delete(t.root,key)
+	return removed
+}
+
 func (t *BinTree) Add(key interface{},value interface{}) {
 	t.root = t.add(t.root,key,value)
 }
